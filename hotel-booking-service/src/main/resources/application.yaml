@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: hotel-booking-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hotel_service
+    username: postgres
+    password: 123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+logging:
+  level:
+    root: INFO
+    com.example.hotelbooking: DEBUG

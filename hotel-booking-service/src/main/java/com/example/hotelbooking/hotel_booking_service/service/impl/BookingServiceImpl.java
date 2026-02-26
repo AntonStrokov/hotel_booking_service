@@ -37,7 +37,7 @@ public class BookingServiceImpl implements BookingService {
 				dto.getRoomId(), dto.getCheckInDate(), dto.getCheckOutDate());
 
 		if (isOverlapping) {
-			throw new RuntimeException("Dates are already booked for this room!");
+			throw new IllegalArgumentException("Dates are already booked for this room!");
 		}
 
 		Room room = roomRepository.findById(dto.getRoomId())

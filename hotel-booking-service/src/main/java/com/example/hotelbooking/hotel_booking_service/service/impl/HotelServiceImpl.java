@@ -1,5 +1,6 @@
 package com.example.hotelbooking.hotel_booking_service.service.impl;
 
+import com.example.hotelbooking.hotel_booking_service.exception.NotFoundException;
 import com.example.hotelbooking.hotel_booking_service.model.Hotel;
 import com.example.hotelbooking.hotel_booking_service.repository.HotelRepository;
 import com.example.hotelbooking.hotel_booking_service.service.HotelService;
@@ -17,7 +18,8 @@ public class HotelServiceImpl implements HotelService {
 	@Override
 	public Hotel getById(Long id) {
 		return hotelRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Hotel not found: " + id));
+				.orElseThrow(() -> new NotFoundException("Hotel not found with id = " + id));
+
 	}
 
 	@Override

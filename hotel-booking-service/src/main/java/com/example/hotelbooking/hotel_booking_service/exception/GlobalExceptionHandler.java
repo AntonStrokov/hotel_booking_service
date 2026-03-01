@@ -2,13 +2,16 @@ package com.example.hotelbooking.hotel_booking_service.exception;
 
 import com.example.hotelbooking.hotel_booking_service.dto.error.ErrorResponseDto;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,9 +38,11 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(Exception.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ErrorResponseDto handleInternal(Exception ex) {
+		log.error("Unhandled exception caught: ", ex);
 		return new ErrorResponseDto(
-				"Internal server error",
+				"Internal server error: " + ex.getMessage(),
 				HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				LocalDateTime.now()
 		);

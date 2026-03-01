@@ -5,6 +5,7 @@ import com.example.hotelbooking.hotel_booking_service.model.User;
 import com.example.hotelbooking.hotel_booking_service.repository.UserRepository;
 import com.example.hotelbooking.hotel_booking_service.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -36,16 +38,28 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new NotFoundException("Пользователь с именем " + username + " не найден"));
 	}
 
+
 	@Override
 	@Transactional
 	public User create(User user) {
 
-		if (userRepository.existsByUsernameOrEmail(user.getUsername(), user.getEmail())) {
-			throw new IllegalArgumentException("Пользователь с таким именем или email уже существует");
+		if (userRepository.existsByUsername(user.getUsername())) {
+			throw new IllegalArgumentException(
+					"Пользователь с именем " + user.getUsername() + " уже зарегистрирован"
+			);
 		}
+
+		if (userRepository.existsByEmail(user.getEmail())) {
+			throw new IllegalArgumentException(
+					"Пользователь с почтой " + user.getEmail() + " уже зарегистрирован"
+			);
+		}
+
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 		return userRepository.save(user);
 	}
+
 
 	@Override
 	@Transactional
@@ -54,17 +68,23 @@ public class UserServiceImpl implements UserService {
 
 		existingUser.setUsername(userDetails.getUsername());
 		existingUser.setEmail(userDetails.getEmail());
-		existingUser.setPassword(userDetails.getPassword());
 		existingUser.setRole(userDetails.getRole());
+
+		if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+			existingUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+		}
 
 		return userRepository.save(existingUser);
 	}
+
 
 	@Override
 	@Transactional
 	public void delete(Long id) {
 		if (!userRepository.existsById(id)) {
-			throw new NotFoundException("Невозможно удалить: пользователь с ID " + id + " не найден");
+			throw new NotFoundException(
+					"Невозможно удалить: пользователь с ID " + id + " не найден"
+			);
 		}
 		userRepository.deleteById(id);
 	}

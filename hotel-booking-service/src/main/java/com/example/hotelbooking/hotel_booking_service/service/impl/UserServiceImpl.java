@@ -88,4 +88,13 @@ public class UserServiceImpl implements UserService {
 		}
 		userRepository.deleteById(id);
 	}
+
+	public User register(User user) {
+		if (userRepository.existsByUsername(user.getUsername()) ||
+				userRepository.existsByEmail(user.getEmail())) {
+			throw new IllegalArgumentException("User with same username or email already exists");
+		}
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		return userRepository.save(user);
+	}
 }

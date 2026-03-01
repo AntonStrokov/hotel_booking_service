@@ -21,6 +21,16 @@ public class UserController {
 	private final UserService userService;
 	private final UserMapper userMapper;
 
+	// Регистрация (доступна без авторизации)
+	@PostMapping("/register")
+	public ResponseEntity<UserResponseDto> register(@RequestBody UserRequestDto requestDto) {
+		User user = userMapper.requestDtoToUser(requestDto);
+		User createdUser = userService.register(user);
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(userMapper.userToResponseDto(createdUser));
+	}
+
+	// CRUD-операции (только для авторизованных пользователей, часть из них только для ADMIN)
 	@PostMapping
 	public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto requestDto) {
 		User user = userMapper.requestDtoToUser(requestDto);
@@ -61,13 +71,5 @@ public class UserController {
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 		userService.delete(id);
 		return ResponseEntity.noContent().build();
-	}
-
-	@PostMapping("/register")
-	public ResponseEntity<UserResponseDto> registerUser(@RequestBody UserRequestDto requestDto) {
-		User user = userMapper.requestDtoToUser(requestDto);
-		User createdUser = userService.create(user);
-		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(userMapper.userToResponseDto(createdUser));
 	}
 }

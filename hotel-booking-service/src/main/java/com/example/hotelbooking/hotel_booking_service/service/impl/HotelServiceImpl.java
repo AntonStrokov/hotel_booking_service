@@ -1,21 +1,30 @@
 package com.example.hotelbooking.hotel_booking_service.service.impl;
 
+import com.example.hotelbooking.hotel_booking_service.dto.hotel.request.HotelSearchRequest;
+import com.example.hotelbooking.hotel_booking_service.dto.hotel.response.HotelListResponseDto;
+import com.example.hotelbooking.hotel_booking_service.dto.hotel.response.HotelResponseDto;
 import com.example.hotelbooking.hotel_booking_service.exception.NotFoundException;
+import com.example.hotelbooking.hotel_booking_service.mapper.HotelMapper;
 import com.example.hotelbooking.hotel_booking_service.model.Hotel;
 import com.example.hotelbooking.hotel_booking_service.repository.HotelRepository;
+import com.example.hotelbooking.hotel_booking_service.repository.specifications.HotelSpecifications;
 import com.example.hotelbooking.hotel_booking_service.service.HotelService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class HotelServiceImpl implements HotelService {
 
 	private final HotelRepository hotelRepository;
+	private final HotelMapper hotelMapper;
 
 	@Override
 	public Hotel getById(Long id) {
@@ -89,5 +98,15 @@ public class HotelServiceImpl implements HotelService {
 		hotelRepository.save(hotel);
 	}
 
+	public HotelListResponseDto findAll(HotelSearchRequest filter) {
+		PageRequest pageRequest = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
+		Page<Hotel> page = hotelRepository.findAll(HotelSpecifications.withFilter(filter), pageRequest);
+
+		List<HotelResponseDto> dtos = page.getContent().stream()
+				.map(hotelMapper::toResponseDto)
+				.collect(Collectors.toList());
+
+		return new HotelListResponseDto(dtos, page.getTotalElements());
+	}
 
 }

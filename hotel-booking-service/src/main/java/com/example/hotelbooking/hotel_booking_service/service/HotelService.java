@@ -1,5 +1,7 @@
 package com.example.hotelbooking.hotel_booking_service.service;
 
+import com.example.hotelbooking.hotel_booking_service.dto.hotel.request.HotelSearchRequest;
+import com.example.hotelbooking.hotel_booking_service.dto.hotel.response.HotelListResponseDto;
 import com.example.hotelbooking.hotel_booking_service.model.Hotel;
 
 import java.util.List;
@@ -16,4 +18,5 @@ public interface HotelService {
 
 	void delete(Long id);
 	public void updateRating(Long hotelId, Integer newMark);
+	HotelListResponseDto findAll(HotelSearchRequest filter);
 }

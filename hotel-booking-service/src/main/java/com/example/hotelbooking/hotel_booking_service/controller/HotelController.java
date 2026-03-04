@@ -1,6 +1,8 @@
 package com.example.hotelbooking.hotel_booking_service.controller;
 
 import com.example.hotelbooking.hotel_booking_service.dto.hotel.request.HotelCreateUpdateRequestDto;
+import com.example.hotelbooking.hotel_booking_service.dto.hotel.request.HotelSearchRequest;
+import com.example.hotelbooking.hotel_booking_service.dto.hotel.response.HotelListResponseDto;
 import com.example.hotelbooking.hotel_booking_service.dto.hotel.response.HotelResponseDto;
 import com.example.hotelbooking.hotel_booking_service.mapper.HotelMapper;
 import com.example.hotelbooking.hotel_booking_service.model.Hotel;
@@ -61,5 +63,11 @@ public class HotelController {
 		hotelService.updateRating(id, newMark);
 		return ResponseEntity.ok().build();
 	}
+
+	@GetMapping("/filter")
+	public ResponseEntity<HotelListResponseDto> filterHotels(HotelSearchRequest filter) {
+		return ResponseEntity.ok(hotelService.findAll(filter));
+	}
+
 
 }

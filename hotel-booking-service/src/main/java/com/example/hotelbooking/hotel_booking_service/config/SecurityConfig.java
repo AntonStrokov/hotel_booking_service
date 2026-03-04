@@ -16,22 +16,17 @@ public class SecurityConfig {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
-						// регистрация доступна всем
+						// Регистрация доступна всем
 						.requestMatchers("/api/users/register").permitAll()
-
-						// отели и комнаты только админ
-						.requestMatchers("/api/hotels/**").hasRole("ADMIN")
-						.requestMatchers("/api/rooms/**").hasRole("ADMIN")
-
-						// бронирования: GET только админ, POST доступен всем авторизованным
+						// Отели и комнаты только админ
+						.requestMatchers("/api/hotels/**", "/api/rooms/**").hasRole("ADMIN")
+						// Бронирования: GET только админ, POST доступен всем авторизованным
 						.requestMatchers(HttpMethod.GET, "/api/bookings/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.POST, "/api/bookings/**").hasAnyRole("USER", "ADMIN")
-
-						// остальные методы доступны авторизованным пользователям
+						// Остальные методы доступны авторизованным пользователям
 						.anyRequest().authenticated()
 				)
 				.httpBasic(Customizer.withDefaults());
-
 		return http.build();
 	}
 }

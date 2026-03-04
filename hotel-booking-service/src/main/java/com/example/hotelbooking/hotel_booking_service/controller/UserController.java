@@ -21,7 +21,6 @@ public class UserController {
 	private final UserService userService;
 	private final UserMapper userMapper;
 
-	// Регистрация (доступна без авторизации)
 	@PostMapping("/register")
 	public ResponseEntity<UserResponseDto> register(@RequestBody UserRequestDto requestDto) {
 		User user = userMapper.requestDtoToUser(requestDto);
@@ -30,7 +29,7 @@ public class UserController {
 				.body(userMapper.userToResponseDto(createdUser));
 	}
 
-	// CRUD-операции (только для авторизованных пользователей, часть из них только для ADMIN)
+
 	@PostMapping
 	public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto requestDto) {
 		User user = userMapper.requestDtoToUser(requestDto);
@@ -39,17 +38,20 @@ public class UserController {
 				.body(userMapper.userToResponseDto(createdUser));
 	}
 
+
 	@GetMapping("/{id}")
 	public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
 		User user = userService.findById(id);
 		return ResponseEntity.ok(userMapper.userToResponseDto(user));
 	}
 
+
 	@GetMapping("/search")
 	public ResponseEntity<UserResponseDto> getUserByUsername(@RequestParam String username) {
 		User user = userService.findByUsername(username);
 		return ResponseEntity.ok(userMapper.userToResponseDto(user));
 	}
+
 
 	@GetMapping
 	public ResponseEntity<List<UserResponseDto>> getAllUsers() {
@@ -59,6 +61,7 @@ public class UserController {
 		return ResponseEntity.ok(users);
 	}
 
+
 	@PutMapping("/{id}")
 	public ResponseEntity<UserResponseDto> updateUser(@PathVariable Long id,
 	                                                  @RequestBody UserRequestDto requestDto) {
@@ -66,6 +69,7 @@ public class UserController {
 		User updatedUser = userService.update(id, userDetails);
 		return ResponseEntity.ok(userMapper.userToResponseDto(updatedUser));
 	}
+
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {

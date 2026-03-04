@@ -7,6 +7,7 @@ import com.example.hotelbooking.hotel_booking_service.model.Hotel;
 import com.example.hotelbooking.hotel_booking_service.service.HotelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,4 +55,11 @@ public class HotelController {
 	public void delete(@PathVariable Long id) {
 		hotelService.delete(id);
 	}
+
+	@PostMapping("/{id}/rate")
+	public ResponseEntity<Void> rateHotel(@PathVariable Long id, @RequestParam Integer newMark) {
+		hotelService.updateRating(id, newMark);
+		return ResponseEntity.ok().build();
+	}
+
 }

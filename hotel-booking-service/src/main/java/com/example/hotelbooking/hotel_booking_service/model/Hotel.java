@@ -32,9 +32,11 @@ public class Hotel {
 	@Column(name = "distance_from_center", nullable = false)
 	private Double distanceFromCenter;
 
+	@Builder.Default
 	@Column(nullable = false)
-	private Double rating;
+	private Double rating = 0.0;
 
+	@Builder.Default
 	@Column(name = "number_of_ratings", nullable = false)
-	private Integer numberOfRatings;
+	private Integer numberOfRatings = 0;
 }

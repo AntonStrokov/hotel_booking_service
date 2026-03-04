@@ -15,4 +15,5 @@ public interface HotelService {
 	Hotel update(Long id, Hotel hotel);
 
 	void delete(Long id);
+	public void updateRating(Long hotelId, Integer newMark);
 }

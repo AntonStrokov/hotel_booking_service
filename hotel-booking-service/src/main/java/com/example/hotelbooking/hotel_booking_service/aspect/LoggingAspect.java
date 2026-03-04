@@ -26,20 +26,18 @@ public class LoggingAspect {
 		Object[] args = joinPoint.getArgs();
 
 		log.info("Enter: {}.{}() with argument[s] = {}", className, methodName, Arrays.toString(args));
-
 		long start = System.currentTimeMillis();
+
 		try {
 			Object result = joinPoint.proceed();
 			long executionTime = System.currentTimeMillis() - start;
-
-			log.info("Exit: {}.{}() with result = {}. Execution time: {} ms",
-					className, methodName, result, executionTime);
+			log.info("Exit: {}.{}() with result = {}. Execution time: {} ms", className, methodName, result, executionTime);
 			return result;
 		} catch (IllegalArgumentException e) {
-			log.error("Illegal argument: {} in {}.{}()", Arrays.toString(args), className, methodName);
+			log.error("Illegal argument: {} in {}.{}() - {}", Arrays.toString(args), className, methodName, e.getMessage());
 			throw e;
 		} catch (Throwable e) {
-			log.error("Exception in {}.{}(): {}", className, methodName, e.getMessage());
+            log.error("Exception in {}.{}(): {}", className, methodName, e.getMessage());
 			throw e;
 		}
 	}

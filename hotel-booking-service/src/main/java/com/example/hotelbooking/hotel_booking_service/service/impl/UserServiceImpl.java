@@ -3,6 +3,7 @@ package com.example.hotelbooking.hotel_booking_service.service.impl;
 import com.example.hotelbooking.hotel_booking_service.exception.NotFoundException;
 import com.example.hotelbooking.hotel_booking_service.model.User;
 import com.example.hotelbooking.hotel_booking_service.repository.UserRepository;
+import com.example.hotelbooking.hotel_booking_service.service.KafkaProducer;
 import com.example.hotelbooking.hotel_booking_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +18,7 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final KafkaProducer kafkaProducer;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -56,8 +58,12 @@ public class UserServiceImpl implements UserService {
 		}
 
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		User savedUser = userRepository.save(user);
 
-		return userRepository.save(user);
+		// 2. Отправляем ID в Kafka (Задание 11)
+		kafkaProducer.sendRegistrationEvent(savedUser.getId());
+
+		return savedUser;
 	}
 
 
@@ -90,11 +96,18 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public User register(User user) {
+
 		if (userRepository.existsByUsername(user.getUsername()) ||
 				userRepository.existsByEmail(user.getEmail())) {
 			throw new IllegalArgumentException("User with same username or email already exists");
 		}
+
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		return userRepository.save(user);
+		User savedUser = userRepository.save(user);
+
+		// 3. И здесь тоже отправляем
+		kafkaProducer.sendRegistrationEvent(savedUser.getId());
+
+		return savedUser;
 	}
 }

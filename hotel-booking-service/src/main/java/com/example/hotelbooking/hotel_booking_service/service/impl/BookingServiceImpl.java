@@ -35,7 +35,11 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	@Transactional
 	public BookingResponseDto create(BookingRequestDto dto) {
-		// Проверяем доступность дат
+
+		if (dto.getCheckOutDate().isBefore(dto.getCheckInDate())) {
+			throw new IllegalArgumentException("Check-out date cannot be before check-in date");
+		}
+
 		boolean isOverlapping = bookingRepository.existsOverlappingBookings(
 				dto.getRoomId(), dto.getCheckInDate(), dto.getCheckOutDate());
 
@@ -52,13 +56,11 @@ public class BookingServiceImpl implements BookingService {
 		booking.setRoom(room);
 		booking.setUser(user);
 
-		// 2. СОХРАНЯЕМ В БД
 		Booking savedBooking = bookingRepository.save(booking);
 
-		// 3. ОТПРАВЛЯЕМ СОБЫТИЕ В KAFKA (Задание 11)
 		kafkaProducer.sendBookingEvent(new BookingEvent(
 				savedBooking.getUser().getId(),
-				savedBooking.getCheckInDate(), // Проверь, что в BookingEvent именно эти поля
+				savedBooking.getCheckInDate(),
 				savedBooking.getCheckOutDate()
 		));
 
@@ -68,7 +70,7 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<BookingResponseDto> findAll(int page, int size) {
-		// Используем PageRequest для пагинации
+
 		return bookingRepository.findAll(PageRequest.of(page, size))
 				.getContent()
 				.stream()

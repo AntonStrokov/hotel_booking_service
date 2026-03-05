@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,6 +28,7 @@ public class HotelServiceImpl implements HotelService {
 	private final HotelMapper hotelMapper;
 
 	@Override
+	@Transactional
 	public Hotel getById(Long id) {
 		return hotelRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException("Hotel not found with id = " + id));
@@ -34,11 +36,13 @@ public class HotelServiceImpl implements HotelService {
 	}
 
 	@Override
+	@Transactional
 	public List<Hotel> getAll() {
 		return hotelRepository.findAll();
 	}
 
 	@Override
+	@Transactional
 	public Hotel create(Hotel hotel) {
 		hotel.setId(null);
 		hotel.setRating(0.0);
@@ -47,6 +51,7 @@ public class HotelServiceImpl implements HotelService {
 	}
 
 	@Override
+	@Transactional
 	public Hotel update(Long id, Hotel hotel) {
 		Hotel existing = getById(id);
 
@@ -60,11 +65,17 @@ public class HotelServiceImpl implements HotelService {
 	}
 
 	@Override
+	@Transactional // Не забудь про транзакцию для удаления
 	public void delete(Long id) {
+		if (!hotelRepository.existsById(id)) {
+			throw new NotFoundException("Невозможно удалить: отель с ID " + id + " не найден");
+		}
 		hotelRepository.deleteById(id);
 	}
 
+
 	@Override
+	@Transactional
 	public void updateRating(Long id, Integer newMark) {
 		if (newMark < 1 || newMark > 5) {
 			throw new IllegalArgumentException("Оценка должна быть от 1 до 5");
@@ -76,28 +87,24 @@ public class HotelServiceImpl implements HotelService {
 		double currentRating = hotel.getRating();
 		int count = hotel.getNumberOfRatings();
 
-		double newRating;
+		// Новое количество оценок
+		int newCount = count + 1;
 
-		// Если это самая первая оценка в истории отеля
-		if (count == 0) {
-			newRating = newMark.doubleValue();
-		} else {
-			// Формула строго по ТЗ
-			double totalRating = currentRating * count;
-			totalRating = totalRating - currentRating + newMark;
-			newRating = totalRating / count;
-		}
+		// Новое среднее = (Сумма всех старых + новая оценка) / новое количество
+		double newRating = ((currentRating * count) + newMark) / newCount;
 
-		// Округление до 1 знака после запятой
+		// Округление (твой код с BigDecimal отличный, оставляем)
 		BigDecimal bd = new BigDecimal(Double.toString(newRating));
 		bd = bd.setScale(1, RoundingMode.HALF_UP);
 
 		hotel.setRating(bd.doubleValue());
-		hotel.setNumberOfRatings(count + 1);
+		hotel.setNumberOfRatings(newCount); // Сохраняем актуальное количество
 
 		hotelRepository.save(hotel);
 	}
 
+	@Override
+	@Transactional
 	public HotelListResponseDto findAll(HotelSearchRequest filter) {
 		PageRequest pageRequest = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
 		Page<Hotel> page = hotelRepository.findAll(HotelSpecifications.withFilter(filter), pageRequest);
@@ -108,5 +115,4 @@ public class HotelServiceImpl implements HotelService {
 
 		return new HotelListResponseDto(dtos, page.getTotalElements());
 	}
-
 }

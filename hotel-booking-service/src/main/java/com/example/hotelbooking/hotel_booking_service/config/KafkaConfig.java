@@ -24,7 +24,6 @@ public class KafkaConfig {
 		configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-		// Эта настройка уберет часть проблем с типами
 		configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, true);
 
 		return new DefaultKafkaProducerFactory<>(configProps);

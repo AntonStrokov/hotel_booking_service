@@ -65,7 +65,7 @@ public class HotelServiceImpl implements HotelService {
 	}
 
 	@Override
-	@Transactional // Не забудь про транзакцию для удаления
+	@Transactional
 	public void delete(Long id) {
 		if (!hotelRepository.existsById(id)) {
 			throw new NotFoundException("Невозможно удалить: отель с ID " + id + " не найден");
@@ -87,18 +87,15 @@ public class HotelServiceImpl implements HotelService {
 		double currentRating = hotel.getRating();
 		int count = hotel.getNumberOfRatings();
 
-		// Новое количество оценок
 		int newCount = count + 1;
 
-		// Новое среднее = (Сумма всех старых + новая оценка) / новое количество
 		double newRating = ((currentRating * count) + newMark) / newCount;
 
-		// Округление (твой код с BigDecimal отличный, оставляем)
 		BigDecimal bd = new BigDecimal(Double.toString(newRating));
 		bd = bd.setScale(1, RoundingMode.HALF_UP);
 
 		hotel.setRating(bd.doubleValue());
-		hotel.setNumberOfRatings(newCount); // Сохраняем актуальное количество
+		hotel.setNumberOfRatings(newCount);
 
 		hotelRepository.save(hotel);
 	}

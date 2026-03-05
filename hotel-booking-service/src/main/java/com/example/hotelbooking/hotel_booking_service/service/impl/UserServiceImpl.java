@@ -42,7 +42,6 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new NotFoundException("Пользователь с именем " + username + " не найден"));
 	}
 
-	// Реализация метода register (обычно вызывается из контроллера)
 	@Override
 	@Transactional
 	public User register(User user) {
@@ -62,7 +61,6 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		User savedUser = userRepository.save(user);
 
-		// Отправка в Kafka
 		kafkaProducer.sendRegistrationEvent(new UserRegistrationEvent(
 				savedUser.getId(),
 				LocalDateTime.now()

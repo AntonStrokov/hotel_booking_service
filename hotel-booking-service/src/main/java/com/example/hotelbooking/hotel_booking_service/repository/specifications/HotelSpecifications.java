@@ -2,7 +2,7 @@ package com.example.hotelbooking.hotel_booking_service.repository.specifications
 
 import com.example.hotelbooking.hotel_booking_service.dto.hotel.request.HotelSearchRequest;
 import com.example.hotelbooking.hotel_booking_service.model.Hotel;
-import jakarta.persistence.criteria.Predicate; // ВАЖНО: именно этот импорт
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;

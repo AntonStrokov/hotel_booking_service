@@ -22,13 +22,11 @@ public class RoomSpecifications {
 			if (filter.getMinPrice() != null) predicates.add(cb.greaterThanOrEqualTo(root.get("price"), filter.getMinPrice()));
 			if (filter.getMaxPrice() != null) predicates.add(cb.lessThanOrEqualTo(root.get("price"), filter.getMaxPrice()));
 
-			// Фильтрация по датам (только если заполнены оба поля по ТЗ)
 			if (filter.getCheckIn() != null && filter.getCheckOut() != null) {
 				Subquery<Long> subquery = query.subquery(Long.class);
 				Root<Booking> bookingRoot = subquery.from(Booking.class);
 				subquery.select(bookingRoot.get("room").get("id"));
 
-				// Условие пересечения дат
 				Predicate overlap = cb.and(
 						cb.lessThan(bookingRoot.get("checkIn"), filter.getCheckOut()),
 						cb.greaterThan(bookingRoot.get("checkOut"), filter.getCheckIn())

@@ -10,13 +10,13 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface HotelMapper {
 
-	// создание Hotel из DTO (rating и numberOfRatings игнорируем)
+
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "rating", ignore = true)
 	@Mapping(target = "numberOfRatings", ignore = true)
 	Hotel toEntity(HotelCreateUpdateRequestDto dto);
 
-	// обновление существующего Hotel
+
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "rating", ignore = true)
 	@Mapping(target = "numberOfRatings", ignore = true)
@@ -25,6 +25,5 @@ public interface HotelMapper {
 			@MappingTarget Hotel hotel
 	);
 
-	// ответ клиенту
 	HotelResponseDto toResponseDto(Hotel hotel);
 }

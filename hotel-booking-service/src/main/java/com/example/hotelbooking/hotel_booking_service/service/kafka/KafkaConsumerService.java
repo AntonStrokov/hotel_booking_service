@@ -18,7 +18,6 @@ public class KafkaConsumerService {
 
 	private final StatisticsRepository repository;
 
-	// Слушаем регистрацию
 	@KafkaListener(topics = "${app.statistics.registration-topic}", groupId = "statistics-group")
 	public void listenRegistration(UserRegistrationEvent event) {
 		log.info("Mongo Consumer: Got registration event for user {}", event.getUserId());
@@ -29,10 +28,9 @@ public class KafkaConsumerService {
 				.timestamp(event.getRegistrationTime())
 				.build();
 
-		repository.save(logEntry); // Сохраняем в MongoDB!
+		repository.save(logEntry);
 	}
 
-	// Слушаем бронирование
 	@KafkaListener(topics = "${app.statistics.booking-topic}", groupId = "statistics-group")
 	public void listenBooking(BookingEvent event) {
 		log.info("Mongo Consumer: Got booking event for user {}", event.getUserId());

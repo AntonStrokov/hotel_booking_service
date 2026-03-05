@@ -16,7 +16,6 @@ public class StatisticsService {
 	public String exportToCsv() {
 		List<UserActionLog> logs = repository.findAll();
 
-		// Заголовок файла
 		StringBuilder csv = new StringBuilder("ID,User_ID,Action_Type,Timestamp,Check_In,Check_Out\n");
 
 		for (UserActionLog log : logs) {

@@ -18,7 +18,7 @@ public class StatisticsController {
 	private final StatisticsService statisticsService;
 
 	@GetMapping("/export")
-	@PreAuthorize("hasRole('ADMIN')") // Только для админов!
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<byte[]> exportStatistics() {
 		String csvData = statisticsService.exportToCsv();
 		byte[] output = csvData.getBytes();

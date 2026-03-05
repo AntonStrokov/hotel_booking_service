@@ -15,7 +15,7 @@ public interface BookingMapper {
 	BookingResponseDto toResponse(Booking booking);
 
 	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "user", ignore = true) // Будем устанавливать в сервисе
-	@Mapping(target = "room", ignore = true) // Будем устанавливать в сервисе
+	@Mapping(target = "user", ignore = true)
+	@Mapping(target = "room", ignore = true)
 	Booking toEntity(BookingRequestDto dto);
 }

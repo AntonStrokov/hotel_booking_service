@@ -13,19 +13,14 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "user_actions") // Название коллекции в MongoDB
+@Document(collection = "user_actions")
 public class UserActionLog {
 
 	@Id
 	private String id;
-
 	private Long userId;
-
-	private String actionType; // Будет принимать значения "REGISTRATION" или "BOOKING"
-
+	private String actionType;
 	private LocalDateTime timestamp;
-
-	// Эти поля будут заполнены только для действия "BOOKING"
 	private LocalDateTime checkIn;
 	private LocalDateTime checkOut;
 }

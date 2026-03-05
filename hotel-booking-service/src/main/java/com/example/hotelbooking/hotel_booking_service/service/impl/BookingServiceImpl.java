@@ -2,6 +2,7 @@ package com.example.hotelbooking.hotel_booking_service.service.impl;
 
 import com.example.hotelbooking.hotel_booking_service.dto.booking.request.BookingRequestDto;
 import com.example.hotelbooking.hotel_booking_service.dto.booking.response.BookingResponseDto;
+import com.example.hotelbooking.hotel_booking_service.dto.statistics.BookingEvent;
 import com.example.hotelbooking.hotel_booking_service.exception.NotFoundException;
 import com.example.hotelbooking.hotel_booking_service.mapper.BookingMapper;
 import com.example.hotelbooking.hotel_booking_service.model.Booking;
@@ -11,6 +12,7 @@ import com.example.hotelbooking.hotel_booking_service.repository.BookingReposito
 import com.example.hotelbooking.hotel_booking_service.repository.RoomRepository;
 import com.example.hotelbooking.hotel_booking_service.repository.UserRepository;
 import com.example.hotelbooking.hotel_booking_service.service.BookingService;
+import com.example.hotelbooking.hotel_booking_service.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,11 +30,12 @@ public class BookingServiceImpl implements BookingService {
 	private final RoomRepository roomRepository;
 	private final UserRepository userRepository;
 	private final BookingMapper bookingMapper;
+	private final KafkaProducerService kafkaProducer; // 1. ДОБАВИЛИ ПРОДЮСЕР
 
 	@Override
 	@Transactional
 	public BookingResponseDto create(BookingRequestDto dto) {
-		// Проверяем доступность дат в репозитории
+		// Проверяем доступность дат
 		boolean isOverlapping = bookingRepository.existsOverlappingBookings(
 				dto.getRoomId(), dto.getCheckInDate(), dto.getCheckOutDate());
 
@@ -49,16 +52,27 @@ public class BookingServiceImpl implements BookingService {
 		booking.setRoom(room);
 		booking.setUser(user);
 
-		return bookingMapper.toResponse(bookingRepository.save(booking));
+		// 2. СОХРАНЯЕМ В БД
+		Booking savedBooking = bookingRepository.save(booking);
+
+		// 3. ОТПРАВЛЯЕМ СОБЫТИЕ В KAFKA (Задание 11)
+		kafkaProducer.sendBookingEvent(new BookingEvent(
+				savedBooking.getUser().getId(),
+				savedBooking.getCheckInDate(), // Проверь, что в BookingEvent именно эти поля
+				savedBooking.getCheckOutDate()
+		));
+
+		return bookingMapper.toResponse(savedBooking);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<BookingResponseDto> findAll(int page, int size) {
+		// Используем PageRequest для пагинации
 		return bookingRepository.findAll(PageRequest.of(page, size))
 				.getContent()
 				.stream()
 				.map(bookingMapper::toResponse)
-            .collect(Collectors.toList());
+				.collect(Collectors.toList());
 	}
 }

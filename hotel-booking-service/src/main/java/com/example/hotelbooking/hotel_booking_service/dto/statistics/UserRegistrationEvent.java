@@ -1,5 +1,6 @@
 package com.example.hotelbooking.hotel_booking_service.dto.statistics;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,5 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UserRegistrationEvent {
 	private Long userId;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime registrationTime;
 }
+

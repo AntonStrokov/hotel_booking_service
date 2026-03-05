@@ -15,6 +15,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/statistics_db
+      database: statistics_db
 
   # Настройка Kafka
   kafka:

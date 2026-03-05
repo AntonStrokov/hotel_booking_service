@@ -10,7 +10,9 @@ services:
       - "5432:5432"
 
   app:
-    build: .
+    build:
+      context: ./hotel-booking-service
+      dockerfile: Dockerfile
     container_name: hotel_booking_app
     ports:
       - "8080:8080"

@@ -1,6 +1,8 @@
 spring:
   application:
     name: hotel-booking-service
+
+  # Настройка PostgreSQL (теперь коннектимся к 'db', как в докере)
   datasource:
     url: jdbc:postgresql://localhost:5432/hotel_service
     username: postgres
@@ -8,6 +10,29 @@ spring:
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
+
+  # Настройка MongoDB для статистики
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/statistics_db
+
+  # Настройка Kafka
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: statistics-group
+      auto-offset-reset: earliest
+      # ПРАВИЛЬНЫЕ ПУТИ НИЖЕ:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      # ПРАВИЛЬНЫЕ ПУТИ НИЖЕ:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,13 +41,14 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  jmx:
-    enabled: true
+
+# Кастомные настройки для топиков (чтобы не хардкодить в сервисах)
+app:
+  statistics:
+    registration-topic: user-registration
+    booking-topic: user-booking
+
 logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   level:
     root: INFO
     com.example.hotelbooking: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

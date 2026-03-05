@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "statistics") // Указываем коллекцию в MongoDB
+@Document(collection = "user_actions") // Название коллекции в MongoDB
 public class UserActionLog {
 
 	@Id
@@ -21,10 +21,11 @@ public class UserActionLog {
 
 	private Long userId;
 
-	private String actionType;
+	private String actionType; // Будет принимать значения "REGISTRATION" или "BOOKING"
 
-	private Instant timestamp;
+	private LocalDateTime timestamp;
 
-	private Instant checkInDate;
-	private Instant checkOutDate;
+	// Эти поля будут заполнены только для действия "BOOKING"
+	private LocalDateTime checkIn;
+	private LocalDateTime checkOut;
 }

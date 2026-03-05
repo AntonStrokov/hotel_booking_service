@@ -1,4 +1,4 @@
-package com.example.hotelbooking.hotel_booking_service.dto.kafka;
+package com.example.hotelbooking.hotel_booking_service.dto.statistics;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

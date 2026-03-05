@@ -1,15 +1,17 @@
 package com.example.hotelbooking.hotel_booking_service.service.impl;
 
+import com.example.hotelbooking.hotel_booking_service.dto.statistics.UserRegistrationEvent;
 import com.example.hotelbooking.hotel_booking_service.exception.NotFoundException;
 import com.example.hotelbooking.hotel_booking_service.model.User;
 import com.example.hotelbooking.hotel_booking_service.repository.UserRepository;
-import com.example.hotelbooking.hotel_booking_service.service.KafkaProducer;
 import com.example.hotelbooking.hotel_booking_service.service.UserService;
+import com.example.hotelbooking.hotel_booking_service.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,7 +20,7 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final KafkaProducer kafkaProducer;
+	private final KafkaProducerService kafkaProducer;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -40,38 +42,39 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new NotFoundException("Пользователь с именем " + username + " не найден"));
 	}
 
+	// Реализация метода register (обычно вызывается из контроллера)
+	@Override
+	@Transactional
+	public User register(User user) {
+		return create(user);
+	}
 
 	@Override
 	@Transactional
 	public User create(User user) {
-
 		if (userRepository.existsByUsername(user.getUsername())) {
-			throw new IllegalArgumentException(
-					"Пользователь с именем " + user.getUsername() + " уже зарегистрирован"
-			);
+			throw new IllegalArgumentException("Пользователь с именем " + user.getUsername() + " уже зарегистрирован");
 		}
-
 		if (userRepository.existsByEmail(user.getEmail())) {
-			throw new IllegalArgumentException(
-					"Пользователь с почтой " + user.getEmail() + " уже зарегистрирован"
-			);
+			throw new IllegalArgumentException("Пользователь с почтой " + user.getEmail() + " уже зарегистрирован");
 		}
 
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		User savedUser = userRepository.save(user);
 
-		// 2. Отправляем ID в Kafka (Задание 11)
-		kafkaProducer.sendRegistrationEvent(savedUser.getId());
+		// Отправка в Kafka
+		kafkaProducer.sendRegistrationEvent(new UserRegistrationEvent(
+				savedUser.getId(),
+				LocalDateTime.now()
+		));
 
 		return savedUser;
 	}
-
 
 	@Override
 	@Transactional
 	public User update(Long id, User userDetails) {
 		User existingUser = findById(id);
-
 		existingUser.setUsername(userDetails.getUsername());
 		existingUser.setEmail(userDetails.getEmail());
 		existingUser.setRole(userDetails.getRole());
@@ -79,35 +82,15 @@ public class UserServiceImpl implements UserService {
 		if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
 			existingUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
 		}
-
 		return userRepository.save(existingUser);
 	}
-
 
 	@Override
 	@Transactional
 	public void delete(Long id) {
 		if (!userRepository.existsById(id)) {
-			throw new NotFoundException(
-					"Невозможно удалить: пользователь с ID " + id + " не найден"
-			);
+			throw new NotFoundException("Пользователь не найден");
 		}
 		userRepository.deleteById(id);
-	}
-
-	public User register(User user) {
-
-		if (userRepository.existsByUsername(user.getUsername()) ||
-				userRepository.existsByEmail(user.getEmail())) {
-			throw new IllegalArgumentException("User with same username or email already exists");
-		}
-
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		User savedUser = userRepository.save(user);
-
-		// 3. И здесь тоже отправляем
-		kafkaProducer.sendRegistrationEvent(savedUser.getId());
-
-		return savedUser;
 	}
 }

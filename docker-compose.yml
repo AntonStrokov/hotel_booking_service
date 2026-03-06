@@ -53,8 +53,11 @@ services:
       - kafka
       - mongodb
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hotel_service
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 123
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/statistics_db
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      - SPRING_PROFILES_ACTIVE=docker # Docker starting profile
+
+        #IDE starting profile
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hotel_service
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: 123
+#      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/statistics_db
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092

@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: hotel-booking-service
+
+  # Настройка PostgreSQL (теперь коннектимся к 'db', как в докере)
+  datasource:
+    url: jdbc:postgresql://db:5432/hotel_service
+    username: postgres
+    password: 123
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+
+  # Настройка MongoDB для статистики
+  data:
+    mongodb:
+      uri: mongodb://mongodb:27017/statistics_db
+      database: statistics_db
+
+  # Настройка Kafka
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: statistics-group
+      auto-offset-reset: earliest
+      # ПРАВИЛЬНЫЕ ПУТИ НИЖЕ:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      # ПРАВИЛЬНЫЕ ПУТИ НИЖЕ:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# Кастомные настройки для топиков (чтобы не хардкодить в сервисах)
+app:
+  statistics:
+    registration-topic: user-registration
+    booking-topic: user-booking
+
+logging:
+  level:
+    root: INFO
+    com.example.hotelbooking: DEBUG
